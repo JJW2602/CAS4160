@@ -28,7 +28,7 @@ def rollout_trajectory(env, policy, max_traj_length, render=False):
     """
     # initialize env for the beginning of a new rollout
     # TODO: implement the following line
-    ob, _ = None, None  # HINT: should be the output of resetting the env
+    ob, _ = env.reset()  # HINT: should be the output of resetting the env
 
     # init vars
     obs, acs, rewards, next_obs, terminals, image_obs = [], [], [], [], [], []
@@ -45,7 +45,7 @@ def rollout_trajectory(env, policy, max_traj_length, render=False):
 
         # use the most recent ob to decide what to do
         obs.append(ob)
-        ac = None  # HINT: query the policy's get_action function
+        ac = policy.get_action(ob)  # HINT: query the policy's get_action function
         acs.append(ac)
 
         # take that action and record results
@@ -58,7 +58,7 @@ def rollout_trajectory(env, policy, max_traj_length, render=False):
 
         # TODO end the rollout if the rollout ended
         # HINT: rollout can end due to termination or truncation, or due to exceeding or reaching (>=) max_traj_length
-        rollout_done = (None or None) or None  # HINT: this is either 0 or 1
+        rollout_done = (terminated or truncated) or (steps>=max_traj_length)  # HINT: this is either 0 or 1
 
         terminals.append(rollout_done)
 
@@ -79,10 +79,17 @@ def rollout_trajectories(
     Hint2: use `get_trajlength` to count the timesteps collected in each traj
     Hint3: repeat while we have collected at least min_timesteps_per_batch steps
     """
+
+    
     timesteps_this_batch = 0
     trajs = []
     while timesteps_this_batch < min_timesteps_per_batch:
-        pass
+
+        traj = rollout_trajectory(env, policy, max_traj_length, render)
+        # Get the number of timesteps in this trajectory
+        traj_length = get_trajlength(traj) 
+        trajs.append(traj)  
+        timesteps_this_batch += traj_length 
 
     return trajs, timesteps_this_batch
 
@@ -90,11 +97,15 @@ def rollout_trajectories(
 def rollout_n_trajectories(env, policy, ntraj, max_traj_length, render=False):
     """
     Collect ntraj rollouts.
-
+    
     TODO implement this function
     Hint1: use rollout_trajectory to get each traj (i.e. rollout) that goes into trajs
     """
     trajs = []
+    #collect trajs using iteration of ntraj times.
+    for _ in range(ntraj):
+        traj=rollout_trajectory(env,policy, max_traj_length, render)
+        trajs.append(traj)
 
     return trajs
 
