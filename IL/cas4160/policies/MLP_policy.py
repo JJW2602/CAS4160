@@ -125,7 +125,17 @@ class MLPPolicySL(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         # HINT 2: We would use self.forward function to get the distribution,
         # And we will sample actions from the distribution.
         # HINT 3: Return a numpy action, not torch tensor
-        raise NotImplementedError
+        
+        # Convert observation to a PyTorch tensor
+        obs_tensor = torch.tensor(observation, dtype=torch.float32)
+        # Get action distribution from the policy's forward pass
+        action_distribution = self.forward(obs_tensor)
+        # Sample an action from the distribution
+        sampled_action = action_distribution.sample()
+        # Convert the sampled action to a NumPy array
+        action_numpy = sampled_action.detach().cpu().numpy()
+    
+        return action_numpy
 
     def forward(self, observation: torch.FloatTensor) -> Any:
         """
@@ -144,8 +154,13 @@ class MLPPolicySL(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         # And design the function to return such a distribution object.
         # HINT 2: In self.get_action and self.update, we will sample from this distribution.
         # HINT 3: Think about how to convert logstd to regular std.
-        raise NotImplementedError
 
+        #Compute mean using the slef.mean_net which is for the continuous action space.
+        mean = self.mean_net(observation)
+        #Compute the action distribution using Normal distribution.
+        action_distribution = dist.Normal(mean, torch.exp(self.logstd))
+        return action_distribution
+        
     def update(self, observations, actions):
         """
         Updates/trains the policy
@@ -159,7 +174,23 @@ class MLPPolicySL(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         # HINT 1: DO NOT forget to call zero_grad to clear gradients from the previous update.
         # HINT 2: DO NOT forget to change the type of observations and actions, just like get_action.
         # HINT 3: DO NOT forget to step the optimizer.
-        loss = None
+
+       # Convert numpy arrays to PyTorch tensors
+        observations_tensor = torch.tensor(observations, dtype=torch.float32)
+        actions_tensor = torch.tensor(actions, dtype=torch.float32)
+        # Get the action distribution from the policy
+        action_distribution = self.forward(observations_tensor)
+        # Compute the negative log probability of the given actions
+        log_probs = action_distribution.log_prob(actions_tensor)
+
+        # Compute negative log likelihood loss as the lecture
+        loss = -log_probs.mean()  
+        # updating parameters
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
+        
         return {
             # You can add extra logging information here, but keep this line
             "Training Loss": ptu.to_numpy(loss),

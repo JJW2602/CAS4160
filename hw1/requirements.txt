@@ -1,6 +1,0 @@
-gymnasium[mujoco,classic_control]
-mediapy
-torch
-tensorboard
-tensorboardX
-moviepy<2.0
