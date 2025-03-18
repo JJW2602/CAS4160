@@ -82,7 +82,7 @@ class ReplayBuffer:
         else:
             self.obs = np.concatenate([self.obs, observations])[-self.max_size :]
             self.acs = np.concatenate([self.acs, actions])[-self.max_size :]
-            if concat_rew:
+            if concat_rew: #Whether to concat reward
                 self.rews = np.concatenate([self.rews, rewards])[-self.max_size :]
             else:
                 if isinstance(rewards, list):
@@ -128,8 +128,16 @@ class ReplayBuffer:
         ## (i.e., not different indices from each array)
         ## You would use same indices for all arrays.
         ## HINT 3: look at the sample_recent_data function below
-
-        return None, None, None, None, None
+        
+        i = np.random.choice(self.obs.shape[0], batch_size, replace=False)
+        obs = self.obs[i]
+        acs = self.acs[i]
+        rews = self.rews[i]
+        next_obs = self.next_obs[i]
+        terminals = self.terminals[i]
+        
+                
+        return obs, acs, rews, next_obs, terminals
 
     def sample_recent_data(self, batch_size=1):
         """
