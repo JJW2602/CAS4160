@@ -67,7 +67,7 @@ def main():
     """
     Parses arguments, creates logger, and runs behavioral cloning
     """
-
+    
     parser = argparse.ArgumentParser()
     # file path is relative to where you're running this script from
     parser.add_argument("--expert_policy_file", "-epf", type=str, required=True)

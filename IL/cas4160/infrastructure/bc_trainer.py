@@ -209,16 +209,45 @@ class BCTrainer:
         # HINT3: you want each of these collected rollouts to be of length self.params['ep_len']
 
         print("\nCollecting data to be used for training...")
-        trajs, envsteps_this_batch = None, None
         ## TODO: implement the above logic
+        
+        # At the first iteration, check we should load expert data
+        #case1 : first iteration & training data exists
+        if itr == 0 and load_initial_expertdata is not None:
+            print(f"\nLoading expert data from {load_initial_expertdata}...")
+            with open(load_initial_expertdata, "rb") as f:
+                loaded_trajs = pickle.load(f)
+            return loaded_trajs, 0, None  #Return expert data (no new environment steps)
+        #case2 : first itration & training data dosen't exist
+        if itr ==0:
+            batch_size = self.params["batch_size_initial"]
+            
+        #case3 : not a first iteration
+        else:
+            batch_size = self.params["batch_size"]
 
+        #For case2, case3's batch_size, collect rollouts
+        trajs, envsteps_this_batch = rollout_trajectories(
+        env=self.env,
+        policy=collect_policy,
+        min_timesteps_per_batch=batch_size,
+        max_traj_length=self.params["ep_len"],
+        render=False
+        )
+       
         # collect more rollouts with the same policy, to be saved as videos in tensorboard
         # note: here, we collect MAX_NVIDEO rollouts, each of length MAX_VIDEO_LEN
         train_video_trajs = None
         if self.log_video:
             print("\nCollecting train rollouts to be used for saving videos...")
             ## TODO look in utils and implement rollout_n_trajectories
-
+            train_video_trajs = rollout_n_trajectories(
+                env=self.env,
+                policy=collect_policy,
+                ntraj=self.MAX_NVIDEO,
+                max_traj_length=self.MAX_VIDEO_LEN,
+                render=True
+            )
         return trajs, envsteps_this_batch, train_video_trajs
 
     def train_agent(self):
@@ -231,18 +260,19 @@ class BCTrainer:
             # TODO sample some data from the data buffer
             # HINT1: use the agent's sample function
             # HINT2: how much data = self.params['train_batch_size']
-            ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = (
-                None,
-                None,
-                None,
-                None,
-                None,
+            
+            #Sample a batch from the agent's replay buffer
+            ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = self.agent.sample(
+            batch_size=self.params["train_batch_size"]    
             )
 
             # TODO use the sampled data to train an agent
             # HINT3: use the agent's train function
             # HINT4: keep the agent's training log for debugging
-            train_log = None
+            
+            #Train an agent with sampled data
+            train_log = self.agent.train(ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch) 
+            
             all_logs.append(train_log)
         return all_logs
 
