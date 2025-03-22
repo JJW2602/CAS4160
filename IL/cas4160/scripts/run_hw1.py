@@ -20,7 +20,13 @@ def run_bc(params):
     Args:
         params: experiment parameters
     """
+    ########################
+    # 2. Imitation learning을 수행하는 함수
+    # 1에서 받은 params를 토대로 hyperparameter, policy형성, Training
+    # 3은 bc_trainer.py에 run_training_loop함수
+    ########################
 
+    
     #######################
     ## AGENT PARAMS
     #######################
@@ -67,6 +73,9 @@ def main():
     """
     Parses arguments, creates logger, and runs behavioral cloning
     """
+    ##############
+    #1.bash에 있는 params들을 run_bc에 넣어주는 함수 2는 run_bc
+    ##############
     
     parser = argparse.ArgumentParser()
     # file path is relative to where you're running this script from

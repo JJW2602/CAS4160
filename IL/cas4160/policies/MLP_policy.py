@@ -68,7 +68,7 @@ class MLPPolicySL(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         self.learning_rate = learning_rate
         self.training = training
         self.nn_baseline = nn_baseline
-
+        
         if self.discrete:
             self.logits_na = ptu.build_mlp(
                 input_size=self.ob_dim,
@@ -134,7 +134,9 @@ class MLPPolicySL(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         sampled_action = action_distribution.sample()
         # Convert the sampled action to a NumPy array
         action_numpy = sampled_action.detach().cpu().numpy()
-    
+        # If batch_size=1
+        if obs.ndim == 1:
+            action_numpy = action_numpy.squeeze(0)
         return action_numpy
 
     def forward(self, observation: torch.FloatTensor) -> Any:
@@ -156,9 +158,10 @@ class MLPPolicySL(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         # HINT 3: Think about how to convert logstd to regular std.
 
         #Compute mean using the slef.mean_net which is for the continuous action space.
+        observation = observation.to(ptu.device)
         mean = self.mean_net(observation)
         #Compute the action distribution using Normal distribution.
-        action_distribution = dist.Normal(mean, torch.exp(self.logstd))
+        action_distribution = torch.distributions.Normal(mean, torch.exp(self.logstd))
         return action_distribution
         
     def update(self, observations, actions):
@@ -176,8 +179,9 @@ class MLPPolicySL(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         # HINT 3: DO NOT forget to step the optimizer.
 
        # Convert numpy arrays to PyTorch tensors
-        observations_tensor = torch.tensor(observations, dtype=torch.float32)
-        actions_tensor = torch.tensor(actions, dtype=torch.float32)
+        observations_tensor = torch.tensor(observations, dtype=torch.float32).to(ptu.device)
+        actions_tensor = torch.tensor(actions, dtype=torch.float32).to(ptu.device)
+        
         # Get the action distribution from the policy
         action_distribution = self.forward(observations_tensor)
         # Compute the negative log probability of the given actions

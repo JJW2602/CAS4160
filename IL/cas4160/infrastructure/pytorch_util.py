@@ -71,14 +71,14 @@ def build_mlp(
     # Hidden layers
     for _ in range(n_layers):
         nn_layers.append(nn.Linear(size, size))
-        n_nlayers.append(activation)
+        nn_layers.append(activation)
 
     # Output layer
     nn_layers.append(nn.Linear(size, output_size))
     nn_layers.append(output_activation)
 
     # Convert list to nn.Sequential
-    return nn.Sequential(*layers)   
+    return nn.Sequential(*nn_layers)   
 
 device = None
 

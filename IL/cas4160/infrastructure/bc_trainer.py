@@ -115,6 +115,10 @@ class BCTrainer:
         start_relabel_with_expert=1,
         expert_policy=None,
     ):
+        ##################
+        #3.받은 params를 통해 agent를 학습
+        #expert data를 가져와서 학습
+        ##################
         """
         :param n_iter:  number of (dagger) iterations
         :param collect_policy:
@@ -271,7 +275,7 @@ class BCTrainer:
             # HINT4: keep the agent's training log for debugging
             
             #Train an agent with sampled data
-            train_log = self.agent.train(ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch) 
+            train_log = self.agent.train(ob_batch, ac_batch) 
             
             all_logs.append(train_log)
         return all_logs
