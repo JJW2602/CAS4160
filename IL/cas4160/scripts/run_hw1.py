@@ -53,7 +53,7 @@ def run_bc(params):
     print("Loading expert policy from...", params["expert_policy_file"])
     loaded_expert_policy = LoadedGaussianPolicy(params["expert_policy_file"])
     print("Done restoring expert policy...")
-
+    print(params)
     ###################
     ### RUN TRAINING
     ###################

@@ -231,7 +231,7 @@ class BCTrainer:
             batch_size = self.params["batch_size"]
 
         #For case2, case3's batch_size, collect rollouts
-        trajs, envsteps_this_batch = rollout_trajectories(
+        trajs, envsteps_this_batch = utils.rollout_trajectories(
         env=self.env,
         policy=collect_policy,
         min_timesteps_per_batch=batch_size,
@@ -245,7 +245,7 @@ class BCTrainer:
         if self.log_video:
             print("\nCollecting train rollouts to be used for saving videos...")
             ## TODO look in utils and implement rollout_n_trajectories
-            train_video_trajs = rollout_n_trajectories(
+            train_video_trajs = utils.rollout_n_trajectories(
                 env=self.env,
                 policy=collect_policy,
                 ntraj=self.MAX_NVIDEO,
@@ -295,6 +295,12 @@ class BCTrainer:
         # HINT: query the policy (using the get_action function) with trajs[i]["observation"]
         # and replace trajs[i]["action"] with these expert labels
 
+        #for traj in trajs, we relabel the action with an expert policy.
+        for traj in trajs:
+            observations = traj['observation']
+            expert_actions = expert_policy.get_action(observations)
+            traj['action'] = expert_actions
+        
         return trajs
 
     ####################################

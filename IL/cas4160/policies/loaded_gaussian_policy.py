@@ -32,7 +32,7 @@ class LoadedGaussianPolicy(BasePolicy, nn.Module):
 
         with open(filename, "rb") as f:
             data = pickle.loads(f.read())
-
+        
         self.nonlin_type = data["nonlin_type"]
         if self.nonlin_type == "lrelu":
             self.non_lin = nn.LeakyReLU(0.01)
