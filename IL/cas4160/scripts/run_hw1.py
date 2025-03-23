@@ -20,13 +20,7 @@ def run_bc(params):
     Args:
         params: experiment parameters
     """
-    ########################
-    # 2. Imitation learning을 수행하는 함수
-    # 1에서 받은 params를 토대로 hyperparameter, policy형성, Training
-    # 3은 bc_trainer.py에 run_training_loop함수
-    ########################
-
-    
+  
     #######################
     ## AGENT PARAMS
     #######################
@@ -53,7 +47,6 @@ def run_bc(params):
     print("Loading expert policy from...", params["expert_policy_file"])
     loaded_expert_policy = LoadedGaussianPolicy(params["expert_policy_file"])
     print("Done restoring expert policy...")
-    print(params)
     ###################
     ### RUN TRAINING
     ###################

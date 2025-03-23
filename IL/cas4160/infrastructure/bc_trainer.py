@@ -57,7 +57,7 @@ class BCTrainer:
         # Get params, create logger, create TF session
         self.params = params
         self.logger = Logger(self.params["logdir"])
-
+    
         # Set random seeds
         seed = self.params["seed"]
         np.random.seed(seed)
@@ -67,7 +67,7 @@ class BCTrainer:
         # Set logger attributes
         self.log_video = True
         self.log_metrics = True
-
+    
         #############
         ## ENV
         #############
@@ -81,7 +81,7 @@ class BCTrainer:
         # Maximum length for episodes
         self.params["ep_len"] = self.params["ep_len"] or self.env.spec.max_episode_steps
         MAX_VIDEO_LEN = self.params["ep_len"]
-
+        
         # Is this env continuous, or self.discrete?
         discrete = isinstance(self.env.action_space, gym.spaces.Discrete)
         self.params["agent_params"]["discrete"] = discrete
@@ -115,10 +115,7 @@ class BCTrainer:
         start_relabel_with_expert=1,
         expert_policy=None,
     ):
-        ##################
-        #3.받은 params를 통해 agent를 학습
-        #expert data를 가져와서 학습
-        ##################
+
         """
         :param n_iter:  number of (dagger) iterations
         :param collect_policy:
@@ -222,6 +219,7 @@ class BCTrainer:
             with open(load_initial_expertdata, "rb") as f:
                 loaded_trajs = pickle.load(f)
             return loaded_trajs, 0, None  #Return expert data (no new environment steps)
+        
         #case2 : first itration & training data dosen't exist
         if itr ==0:
             batch_size = self.params["batch_size_initial"]
@@ -248,8 +246,8 @@ class BCTrainer:
             train_video_trajs = utils.rollout_n_trajectories(
                 env=self.env,
                 policy=collect_policy,
-                ntraj=self.MAX_NVIDEO,
-                max_traj_length=self.MAX_VIDEO_LEN,
+                ntraj=MAX_NVIDEO,
+                max_traj_length=MAX_VIDEO_LEN,
                 render=True
             )
         return trajs, envsteps_this_batch, train_video_trajs

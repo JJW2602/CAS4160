@@ -59,7 +59,6 @@ def rollout_trajectory(env, policy, max_traj_length, render=False):
         # TODO end the rollout if the rollout ended
         # HINT: rollout can end due to termination or truncation, or due to exceeding or reaching (>=) max_traj_length
         rollout_done = (terminated or truncated) or (steps>=max_traj_length)  # HINT: this is either 0 or 1
-
         terminals.append(rollout_done)
 
         if rollout_done:

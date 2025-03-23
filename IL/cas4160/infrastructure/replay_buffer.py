@@ -66,7 +66,7 @@ class ReplayBuffer:
         # add new rollouts into our list of rollouts
         for traj in trajs:
             self.trajs.append(traj)
-
+        
         # convert new rollouts into their component arrays, and append them onto
         # our arrays
         observations, actions, rewards, next_observations, terminals = (
