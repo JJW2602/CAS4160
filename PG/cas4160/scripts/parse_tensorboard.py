@@ -89,6 +89,7 @@ if __name__ == "__main__":
     parser.add_argument("--title", "-t", type=str, default=None, required=False)
     parser.add_argument("--x_label_name", "-x", type=str, default=None, required=False)
     parser.add_argument("--y_label_name", "-y", type=str, default=None, required=False)
+    parser.add_argument("--baseline", "-b", type=int, default=None, required=False)
     parser.add_argument(
         "--output_file", "-o", type=str, default="output_plot.png", required=False
     )
@@ -136,6 +137,11 @@ if __name__ == "__main__":
                 if not args.plot_mean_std:
                     plot_name = f"{name}-{data_key}" if len(args.data_key) > 1 else name
                     plot_scalars(plt.gca(), scalars, data_key, plot_name, color)
+    if args.baseline:
+        plt.axhline(y=args.baseline, color='gray', linestyle='--', linewidth=1)
+        yticks = plt.yticks()[0]
+        new_yticks = list(yticks) + [args.baseline]
+        plt.yticks(sorted(set(new_yticks)))
 
     if has_names:
         plt.legend()

@@ -197,13 +197,14 @@ class PGAgent(nn.Module):
                 # HINT: calculating `deltas` as in the GAE formula first would be useful.
                 # HINT2: handle edge cases by using `terminals`. You can multiply (1 - terminals) to the value of the next state
                 # to handle this.
-                deltas = q_values - values[:-1] + self.gamma * values[1:] * (1 - terminals) # Calculate deltas
+               
 
                 for i in reversed(range(batch_size)):
                     # TODO: recursively compute advantage estimates starting from timestep T.
                     # HINT: use terminals to handle edge cases. terminals[i] is 1 if there isn't a next state in its
                     # trajectory, and 0 otherwise.
-                    advantages[i] = deltas[i] + self.gamma * self.gae_lambda * (1 - terminals[i]) * advantages[i + 1]   #Calculate advantages
+                    delta = rewards[i] + self.gamma * values[i+1] * (1 - terminals[i]) - values[i]
+                    advantages[i] = delta + self.gamma * self.gae_lambda * (1 - terminals[i]) * advantages[i + 1]   #Calculate advantages
                 # remove dummy advantage
                 advantages = advantages[:-1]
         return advantages
@@ -231,7 +232,7 @@ class PGAgent(nn.Module):
         """
         assert rewards.ndim == 1
         # TODO: calculate discounted return using the above formula
-        ret = sum((self.gamma ** t) * rewards[t] for t in range(len(rewards)))
+        ret = sum((self.gamma ** t) * rewards[t] for t in range(len(rewards))) # Calculate q_hat
         ret = np.full_like(rewards, fill_value=ret, dtype=np.float32)
         assert rewards.shape == ret.shape
         return ret
@@ -256,7 +257,7 @@ class PGAgent(nn.Module):
         """
         assert rewards.ndim == 1
         # TODO: calculate discounted reward to go using the above formula
-        ret = np.zeros_like(rewards, dtype=np.float32)
+        ret = np.zeros_like(rewards, dtype=np.float32) #calculate reward-to-go
         running_add = 0
         for t in reversed(range(len(rewards))):
             running_add = rewards[t] + self.gamma * running_add
@@ -279,6 +280,9 @@ class PGAgent(nn.Module):
         # HINT: self.actor outputs a distribution object, which has a method log_prob that takes in the actions
         dist = self.actor(ptu.from_numpy(obs))
         logp = dist.log_prob(ptu.from_numpy(actions))
-
+        if not self.actor.discrete:
+            logp = logp.sum(dim=-1)
+        logp = ptu.to_numpy(logp)
+        
         assert logp.ndim == 1 and logp.shape[0] == obs.shape[0]
         return logp
