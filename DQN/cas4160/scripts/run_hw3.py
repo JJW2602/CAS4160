@@ -90,7 +90,7 @@ def run_training_loop(config: dict, logger: Logger, args: argparse.Namespace):
         
         # TODO(student): Compute action
         # HINT: use agent.get_action() with epsilon
-        action = agent.get_action(observation, epsilone)
+        action = agent.get_action(observation, epsilon)
         
 
         # TODO(student): Step the environment
@@ -132,7 +132,13 @@ def run_training_loop(config: dict, logger: Logger, args: argparse.Namespace):
 
             # TODO(student): Train the agent. `batch` is a dictionary of numpy arrays.
             # HINT: agent.update
-            update_info = agent.update(batch)
+            obs_batch      = batch["observations"]
+            action_batch   = batch["actions"]
+            reward_batch   = batch["rewards"]
+            next_obs_batch = batch["next_observations"]
+            done_batch     = batch["dones"]
+            
+            update_info = agent.update(obs_batch, action_batch, reward_batch, next_obs_batch, done_batch, step)
 
             # Logging code
             update_info["epsilon"] = epsilon
