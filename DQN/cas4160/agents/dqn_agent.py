@@ -80,7 +80,7 @@ class DQNAgent(nn.Module):
 
             if self.use_double_q:
                 # Choose action with argmax of critic network 
-                next_action = next_qa_values.armax(dim=1, keepdim=True)
+                next_action = next_qa_values.argmax(dim=1, keepdim=True)
             else:
                 # Choose action with argmax of target critic network 
                 next_action = self.target_critic(next_obs).argmax(dim=1, keepdim=True)

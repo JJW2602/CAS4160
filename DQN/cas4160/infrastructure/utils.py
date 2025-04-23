@@ -36,14 +36,15 @@ def sample_trajectory(
 
         # TODO(student): use the most recent ob to decide what to do
         # HINT: agent.get_action()
-        ac = agent.get_action(ob, epsilon=0.0)
+        ac = agent.get_action(ob, 0.02)
 
         # TODO(student): take that action and get reward and next obs from the environment
         # HINT: use env.step()
         next_ob, rew, terminated, truncated, info = env.step(ac)
 
         # TODO(student): rollout can end due to termination, or truncation because it reached the maximum number of steps.
-        rollout_done = bool(terminated or truncated or (steps >= max_length)) # HINT: this is either 0 or 1
+        end_maxnum = ((steps>max_length) or (steps==max_length)) if max_length is not None else False
+        rollout_done = bool(terminated or truncated or end_maxnum) # HINT: this is either 0 or 1
         steps += 1
 
         # record result of taking that action
@@ -88,7 +89,7 @@ def sample_trajectories(
     trajs = []
     while timesteps_this_batch < min_timesteps_per_batch:
         # collect rollout
-        traj = sample_trajectory(env, policy, max_length, render)
+        traj = sample_trajectory(env, agent, max_length, render)
         trajs.append(traj)
 
         # count steps
